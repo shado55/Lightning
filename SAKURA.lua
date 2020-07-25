@@ -3097,96 +3097,6 @@ end
 send(msg.chat_id_, msg.id_, t)
 end
 
-
-if text == 'الملفات' and SudoBot(msg) then
-t = '📮| ملفات السورس ساكورا ↓\n ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ء \n'
-i = 0
-for v in io.popen('ls File_Bot'):lines() do
-if v:match(".lua$") then
-i = i + 1
-t = t..i..'- الملف ← {'..v..'}\n'
-end
-end
-send(msg.chat_id_, msg.id_,t)
-end
-if text == "متجر الملفات" or text == 'المتجر' then
-if SudoBot(msg) then
-local Get_Files, res = https.request("https://raw.githubusercontent.com/SAKURASR/Files_SAKURA/master/getfile.json")
-if res == 200 then
-local Get_info, res = pcall(JSON.decode,Get_Files);
-vardump(res.plugins_)
-if Get_info then
-local TextS = "\n📁| اهلا بك في متجر ملفات ساكورا\n🔰| ملفات السورس ↓\n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\n"
-local TextE = "\n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n🔘|  علامة تعني { ✓ } ملف مفعل\n🔘| علامة تعني { ✘ } ملف معطل\n🔖| قناة سورس ساكورا ↓\n".."📮| [اضغط هنا لدخول](t.me/SAKURAV15) \n"
-local NumFile = 0
-for name,Info in pairs(res.plugins_) do
-local Check_File_is_Found = io.open("File_Bot/"..name,"r")
-if Check_File_is_Found then
-io.close(Check_File_is_Found)
-CeckFile = "(✓)"
-else
-CeckFile = "(✘)"
-end
-NumFile = NumFile + 1
-TextS = TextS..'*'..NumFile.."→* {`"..name..'`} » '..CeckFile..'\n[-Information]('..Info..')\n'
-end
-send(msg.chat_id_, msg.id_,TextS..TextE) 
-end
-else
-send(msg.chat_id_, msg.id_,"🔰| لا يوجد اتصال من ال api \n") 
-end
-return false
-end
-end
-
-if text and text:match("^(تعطيل) (.*)(.lua)$") and SudoBot(msg) then
-local name_t = {string.match(text, "^(تعطيل) (.*)(.lua)$")}
-local file = name_t[2]..'.lua'
-local file_bot = io.open("File_Bot/"..file,"r")
-if file_bot then
-io.close(file_bot)
-t = "📁| الملف ← "..file.."\n🔰| تم تعطيل ملف \n"
-else
-t = "🔖| بالتاكيد تم تعطيل ملف → "..file.."\n"
-end
-local json_file, res = https.request("https://raw.githubusercontent.com/SAKURASR/Files_SAKURA/master/File_Bot/"..file)
-if res == 200 then
-os.execute("rm -fr File_Bot/"..file)
-send(msg.chat_id_, msg.id_,t) 
-dofile('SAKURA.lua')  
-else
-send(msg.chat_id_, msg.id_,"⚠️| عذرا هاذا ملف ليس من ملفات سورس ساكورا\n") 
-end
-return false
-end
-if text and text:match("^(تفعيل) (.*)(.lua)$") and SudoBot(msg) then
-local name_t = {string.match(text, "^(تفعيل) (.*)(.lua)$")}
-local file = name_t[2]..'.lua'
-local file_bot = io.open("File_Bot/"..file,"r")
-if file_bot then
-io.close(file_bot)
-t = "🔖| بالتاكيد تم تفعيل ملف → "..file.." \n"
-else
-t = "📁| الملف ← "..file.."\n🔰| تم تفعيل ملف \n"
-end
-local json_file, res = https.request("https://raw.githubusercontent.com/SAKURASR/Files_SAKURA/master/File_Bot/"..file)
-if res == 200 then
-local chek = io.open("File_Bot/"..file,'w+')
-chek:write(json_file)
-chek:close()
-send(msg.chat_id_, msg.id_,t) 
-dofile('SAKURA.lua')  
-else
-send(msg.chat_id_, msg.id_,"⚠️|  عذرا هاذا ملف ليس من ملفات سورس ساكورا\n") 
-end
-return false
-end
-if text == "مسح الملفات" and SudoBot(msg) then
-os.execute("rm -fr File_Bot/*")
-send(msg.chat_id_,msg.id_,"🔖| تم مسح الملفات")
-return false
-end
-
 if text == ("رفع مطور") and msg.reply_to_message_id_ and SudoBot(msg) then
 function start_function(extra, result, success)
 if AddChannel(msg.sender_user_id_) == false then
@@ -8270,7 +8180,16 @@ Text = '\n⚠️| بالتاكيد تم تعطيل امر اطردني'
 end
 send(msg.chat_id_, msg.id_,Text) 
 end
-if text == ("ايدي") and msg.reply_to_message_id_ == 0 and not database:get(bot_id..'Bot:Id'..msg.chat_id_) then      
+if text == ("ايدي") and msg.reply_to_message_id_ == 0 and not database:get(bot_id..'Bot:Id'..msg.chat_id_) then     
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖¦ لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌¦ اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
 if not database:sismember(bot_id..'Spam:Texting'..msg.sender_user_id_,text) then
 database:sadd(bot_id..'Spam:Texting'..msg.sender_user_id_,text) 
 tdcli_function ({ID = "GetChatMember",chat_id_ = msg.chat_id_,user_id_ = msg.sender_user_id_},function(arg,da)  tdcli_function ({ ID = "SendChatAction",  chat_id_ = msg.sender_user_id_, action_ = {  ID = "SendMessageTypingAction", progress_ = 100}  },function(arg,ta)  tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(extra,result,success)  tdcli_function ({ID = "GetUserProfilePhotos",user_id_ = msg.sender_user_id_,offset_ = 0,limit_ = 1},function(extra,taha,success) 
@@ -8493,7 +8412,563 @@ end,nil)
 end
 return false
 end
+if text == 'سمايلات' or text == 'سمايل' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+database:del(bot_id..'Set:Sma'..msg.chat_id_)
+Random = {'🍏','🍎','🍐','🍊','??','🍉','🍇','🍓','🍈','🍒','🍑','🍍','??','🥝','🍅','🍆','🥑','🥦','🥒','🌶','🌽','🥕','🥔','🥖','🥐','🍞','🥨','🍟','🧀','🥚','🍳','🥓','🥩','🍗','🍖','🌭','🍔','🍠','🍕','🥪','🥙','☕️','🍵','🥤','🍶','🍺','🍻','🏀','⚽️','🏈','⚾️','🎾','🏐','🏉','🎱','🏓','🏸','🥅','🎰','🎮','🎳','🎯','🎲','🎻','🎸','🎺','🥁','🎹','🎼','🎧','🎤','🎬','🎨','🎭','🎪','🎟','🎫','🎗','🏵','🎖','🏆','🥌','🛷','🚗','🚌','🏎','🚓','🚑','🚚','🚛','🚜','🇮🇶','⚔','🛡','🔮','🌡','💣','📌','📍','📓','📗','📂','📅','📪','📫','📬','📭','⏰','📺','🎚','☎️','📡'}
+SM = Random[math.random(#Random)]
+database:set(bot_id..'Random:Sm'..msg.chat_id_,SM)
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يدز هاذا السمايل ? » {`'..SM..'`}')
+return false
+end
+end
+if text == ''..(database:get(bot_id..'Random:Sm'..msg.chat_id_) or '')..'' and not database:get(bot_id..'Set:Sma'..msg.chat_id_) then
+if not database:get(bot_id..'Set:Sma'..msg.chat_id_) then 
+send(msg.chat_id_, msg.id_,'✨| الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ سمايل , سمايلات }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Sma'..msg.chat_id_,true)
+return false
+end 
+if text == 'الاسرع' or tect == 'ترتيب' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+database:del(bot_id..'Speed:Tr'..msg.chat_id_)
+KlamSpeed = {'سحور','سياره','استقبال','قنفه','ايفون','بزونه','مطبخ','كرستيانو','دجاجه','مدرسه','الوان','غرفه','ثلاجه','كهوه','سفينه','العراق','محطه','طياره','رادار','منزل','مستشفى','كهرباء','تفاحه','اخطبوط','سلمون','فرنسا','برتقاله','تفاح','مطرقه','بتيته','لهانه','شباك','باص','سمكه','ذباب','تلفاز','حاسوب','انترنيت','ساحه','جسر'};
+name = KlamSpeed[math.random(#KlamSpeed)]
+database:set(bot_id..'Klam:Speed'..msg.chat_id_,name)
+name = string.gsub(name,'سحور','س ر و ح')
+name = string.gsub(name,'سياره','ه ر س ي ا')
+name = string.gsub(name,'استقبال','ل ب ا ت ق س ا')
+name = string.gsub(name,'قنفه','ه ق ن ف')
+name = string.gsub(name,'ايفون','و ن ف ا')
+name = string.gsub(name,'بزونه','ز و ه ن')
+name = string.gsub(name,'مطبخ','خ ب ط م')
+name = string.gsub(name,'كرستيانو','س ت ا ن و ك ر ي')
+name = string.gsub(name,'دجاجه','ج ج ا د ه')
+name = string.gsub(name,'مدرسه','ه م د ر س')
+name = string.gsub(name,'الوان','ن ا و ا ل')
+name = string.gsub(name,'غرفه','غ ه ر ف')
+name = string.gsub(name,'ثلاجه','ج ه ت ل ا')
+name = string.gsub(name,'كهوه','ه ك ه و')
+name = string.gsub(name,'سفينه','ه ن ف ي س')
+name = string.gsub(name,'العراق','ق ع ا ل ر ا')
+name = string.gsub(name,'محطه','ه ط م ح')
+name = string.gsub(name,'طياره','ر ا ط ي ه')
+name = string.gsub(name,'رادار','ر ا ر ا د')
+name = string.gsub(name,'منزل','ن ز م ل')
+name = string.gsub(name,'مستشفى','ى ش س ف ت م')
+name = string.gsub(name,'كهرباء','ر ب ك ه ا ء')
+name = string.gsub(name,'تفاحه','ح ه ا ت ف')
+name = string.gsub(name,'اخطبوط','ط ب و ا خ ط')
+name = string.gsub(name,'سلمون','ن م و ل س')
+name = string.gsub(name,'فرنسا','ن ف ر س ا')
+name = string.gsub(name,'برتقاله','ر ت ق ب ا ه ل')
+name = string.gsub(name,'تفاح','ح ف ا ت')
+name = string.gsub(name,'مطرقه','ه ط م ر ق')
+name = string.gsub(name,'بتيته','ب ت ت ي ه')
+name = string.gsub(name,'لهانه','ه ن ل ه ل')
+name = string.gsub(name,'شباك','ب ش ا ك')
+name = string.gsub(name,'باص','ص ا ب')
+name = string.gsub(name,'سمكه','ك س م ه')
+name = string.gsub(name,'ذباب','ب ا ب ذ')
+name = string.gsub(name,'تلفاز','ت ف ل ز ا')
+name = string.gsub(name,'حاسوب','س ا ح و ب')
+name = string.gsub(name,'انترنيت','ا ت ن ر ن ي ت')
+name = string.gsub(name,'ساحه','ح ا ه س')
+name = string.gsub(name,'جسر','ر ج س')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يرتبها » {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..'Klam:Speed'..msg.chat_id_) or '')..'' and not database:get(bot_id..'Speed:Tr'..msg.chat_id_) then
+if not database:get(bot_id..'Speed:Tr'..msg.chat_id_) then 
+send(msg.chat_id_, msg.id_,'✨| الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ الاسرع , ترتيب }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Speed:Tr'..msg.chat_id_,true)
+end 
 
+if text == 'حزوره' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+database:del(bot_id..'Set:Hzora'..msg.chat_id_)
+Hzora = {'الجرس','عقرب الساعه','السمك','المطر','5','الكتاب','البسمار','7','الكعبه','بيت الشعر','لهانه','انا','امي','الابره','الساعه','22','غلط','كم الساعه','البيتنجان','البيض','المرايه','الضوء','الهواء','الضل','العمر','القلم','المشط','الحفره','البحر','الثلج','الاسفنج','الصوت','بلم'};
+name = Hzora[math.random(#Hzora)]
+database:set(bot_id..'Klam:Hzor'..msg.chat_id_,name)
+name = string.gsub(name,'الجرس','شيئ اذا لمسته صرخ ما هوه ؟')
+name = string.gsub(name,'عقرب الساعه','اخوان لا يستطيعان تمضيه اكثر من دقيقه معا فما هما ؟')
+name = string.gsub(name,'السمك','ما هو الحيوان الذي لم يصعد الى سفينة نوح عليه السلام ؟')
+name = string.gsub(name,'المطر','شيئ يسقط على رأسك من الاعلى ولا يجرحك فما هو ؟')
+name = string.gsub(name,'5','ما العدد الذي اذا ضربته بنفسه واضفت عليه 5 يصبح ثلاثين ')
+name = string.gsub(name,'الكتاب','ما الشيئ الذي له اوراق وليس له جذور ؟')
+name = string.gsub(name,'البسمار','ما هو الشيئ الذي لا يمشي الا بالضرب ؟')
+name = string.gsub(name,'7','عائله مؤلفه من 6 بنات واخ لكل منهن .فكم عدد افراد العائله ')
+name = string.gsub(name,'الكعبه','ما هو الشيئ الموجود وسط مكة ؟')
+name = string.gsub(name,'بيت الشعر','ما هو البيت الذي ليس فيه ابواب ولا نوافذ ؟ ')
+name = string.gsub(name,'لهانه','وحده حلوه ومغروره تلبس مية تنوره .من هيه ؟ ')
+name = string.gsub(name,'انا','ابن امك وابن ابيك وليس باختك ولا باخيك فمن يكون ؟')
+name = string.gsub(name,'امي','اخت خالك وليست خالتك من تكون ؟ ')
+name = string.gsub(name,'الابره','ما هو الشيئ الذي كلما خطا خطوه فقد شيئا من ذيله ؟ ')
+name = string.gsub(name,'الساعه','ما هو الشيئ الذي يقول الصدق ولكنه اذا جاع كذب ؟')
+name = string.gsub(name,'22','كم مره ينطبق عقربا الساعه على بعضهما في اليوم الواحد ')
+name = string.gsub(name,'غلط','ما هي الكلمه الوحيده التي تلفض غلط دائما ؟ ')
+name = string.gsub(name,'كم الساعه','ما هو السؤال الذي تختلف اجابته دائما ؟')
+name = string.gsub(name,'البيتنجان','جسم اسود وقلب ابيض وراس اخظر فما هو ؟')
+name = string.gsub(name,'البيض','ماهو الشيئ الذي اسمه على لونه ؟')
+name = string.gsub(name,'المرايه','ارى كل شيئ من دون عيون من اكون ؟ ')
+name = string.gsub(name,'الضوء','ما هو الشيئ الذي يخترق الزجاج ولا يكسره ؟')
+name = string.gsub(name,'الهواء','ما هو الشيئ الذي يسير امامك ولا تراه ؟')
+name = string.gsub(name,'الضل','ما هو الشيئ الذي يلاحقك اينما تذهب ؟ ')
+name = string.gsub(name,'العمر','ما هو الشيء الذي كلما طال قصر ؟ ')
+name = string.gsub(name,'القلم','ما هو الشيئ الذي يكتب ولا يقرأ ؟')
+name = string.gsub(name,'المشط','له أسنان ولا يعض ما هو ؟ ')
+name = string.gsub(name,'الحفره','ما هو الشيئ اذا أخذنا منه ازداد وكبر ؟')
+name = string.gsub(name,'البحر','ما هو الشيئ الذي يرفع اثقال ولا يقدر يرفع مسمار ؟')
+name = string.gsub(name,'الثلج','انا ابن الماء فان تركوني في الماء مت فمن انا ؟')
+name = string.gsub(name,'الاسفنج','كلي ثقوب ومع ذالك احفض الماء فمن اكون ؟')
+name = string.gsub(name,'الصوت','اسير بلا رجلين ولا ادخل الا بالاذنين فمن انا ؟')
+name = string.gsub(name,'بلم','حامل ومحمول نصف ناشف ونصف مبلول فمن اكون ؟ ')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يحل الحزوره ↓\n {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..'Klam:Hzor'..msg.chat_id_) or '')..'' and not database:get(bot_id..'Set:Hzora'..msg.chat_id_) then
+if not database:get(bot_id..'Set:Hzora'..msg.chat_id_) then 
+send(msg.chat_id_, msg.id_,'✨| الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ حزوره }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Hzora'..msg.chat_id_,true)
+end 
+
+if text == 'معاني' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+database:del(bot_id..'Set:Maany'..msg.chat_id_)
+Maany_Rand = {'قرد','دجاجه','بطريق','ضفدع','بومه','نحله','ديك','جمل','بقره','دولفين','تمساح','قرش','نمر','اخطبوط','سمكه','خفاش','اسد','فأر','ذئب','فراشه','عقرب','زرافه','قنفذ','تفاحه','باذنجان'}
+name = Maany_Rand[math.random(#Maany_Rand)]
+database:set(bot_id..'Maany'..msg.chat_id_,name)
+name = string.gsub(name,'قرد','🐒')
+name = string.gsub(name,'دجاجه','🐔')
+name = string.gsub(name,'بطريق','🐧')
+name = string.gsub(name,'ضفدع','🐸')
+name = string.gsub(name,'بومه','🦉')
+name = string.gsub(name,'نحله','🐝')
+name = string.gsub(name,'ديك','🐓')
+name = string.gsub(name,'جمل','🐫')
+name = string.gsub(name,'بقره','🐄')
+name = string.gsub(name,'دولفين','??')
+name = string.gsub(name,'تمساح','🐊')
+name = string.gsub(name,'قرش','🦈')
+name = string.gsub(name,'نمر','🐅')
+name = string.gsub(name,'اخطبوط','🐙')
+name = string.gsub(name,'سمكه','🐟')
+name = string.gsub(name,'خفاش','🦇')
+name = string.gsub(name,'اسد','🦁')
+name = string.gsub(name,'فأر','🐭')
+name = string.gsub(name,'ذئب','🐺')
+name = string.gsub(name,'فراشه','🦋')
+name = string.gsub(name,'عقرب','🦂')
+name = string.gsub(name,'زرافه','🦒')
+name = string.gsub(name,'قنفذ','🦔')
+name = string.gsub(name,'تفاحه','🍎')
+name = string.gsub(name,'باذنجان','🍆')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يدز معنى السمايل » {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..'Maany'..msg.chat_id_) or '')..'' and not database:get(bot_id..'Set:Maany'..msg.chat_id_) then
+if not database:get(bot_id..'Set:Maany'..msg.chat_id_) then 
+send(msg.chat_id_, msg.id_,'✨| الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ معاني }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Maany'..msg.chat_id_,true)
+end 
+if text == 'العكس' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+database:del(bot_id..'Set:Aks'..msg.chat_id_)
+katu = {'باي','فهمت','موزين','اسمعك','احبك','موحلو','نضيف','حاره','ناصي','جوه','سريع','ونسه','طويل','سمين','ضعيف','شريف','شجاع','رحت','عدل','نشيط','شبعان','موعطشان','خوش ولد','اني','هادئ'}
+name = katu[math.random(#katu)]
+database:set(bot_id..'Set:Aks:Game'..msg.chat_id_,name)
+name = string.gsub(name,'باي','هلو')
+name = string.gsub(name,'فهمت','مافهمت')
+name = string.gsub(name,'موزين','زين')
+name = string.gsub(name,'اسمعك','ماسمعك')
+name = string.gsub(name,'احبك','ماحبك')
+name = string.gsub(name,'موحلو','حلو')
+name = string.gsub(name,'نضيف','وصخ')
+name = string.gsub(name,'حاره','بارده')
+name = string.gsub(name,'ناصي','عالي')
+name = string.gsub(name,'جوه','فوك')
+name = string.gsub(name,'سريع','بطيء')
+name = string.gsub(name,'ونسه','ضوجه')
+name = string.gsub(name,'طويل','قزم')
+name = string.gsub(name,'سمين','ضعيف')
+name = string.gsub(name,'ضعيف','قوي')
+name = string.gsub(name,'شريف','كواد')
+name = string.gsub(name,'شجاع','جبان')
+name = string.gsub(name,'رحت','اجيت')
+name = string.gsub(name,'عدل','ميت')
+name = string.gsub(name,'نشيط','كسول')
+name = string.gsub(name,'شبعان','جوعان')
+name = string.gsub(name,'موعطشان','عطشان')
+name = string.gsub(name,'خوش ولد','موخوش ولد')
+name = string.gsub(name,'اني','مطي')
+name = string.gsub(name,'هادئ','عصبي')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يدز العكس » {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..'Set:Aks:Game'..msg.chat_id_) or '')..'' and not database:get(bot_id..'Set:Aks'..msg.chat_id_) then
+if not database:get(bot_id..'Set:Aks'..msg.chat_id_) then 
+send(msg.chat_id_, msg.id_,'✨| الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ العكس }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Aks'..msg.chat_id_,true)
+end 
+
+if database:get(bot_id.."GAME:TKMEN" .. msg.chat_id_ .. "" .. msg.sender_user_id_) then  
+if text and text:match("^(%d+)$") then
+local NUM = text:match("^(%d+)$")
+if tonumber(NUM) > 20 then
+send(msg.chat_id_, msg.id_,"🔘| عذرآ لا يمكنك تخمين عدد اكبر من ال { 20 } خمن رقم ما بين ال{ 1 و 20 }\n")
+return false  end 
+local GETNUM = database:get(bot_id.."GAMES:NUM"..msg.chat_id_)
+if tonumber(NUM) == tonumber(GETNUM) then
+database:del(bot_id..'SADD:NUM'..msg.chat_id_..msg.sender_user_id_)
+database:del(bot_id.."GAME:TKMEN" .. msg.chat_id_ .. "" .. msg.sender_user_id_)   
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_,5)  
+send(msg.chat_id_, msg.id_,'🔖| مبروك فزت ويانه وخمنت الرقم الصحيح\n🚸| تم اضافة { 5 } من النقاط \n')
+elseif tonumber(NUM) ~= tonumber(GETNUM) then
+database:incrby(bot_id..'SADD:NUM'..msg.chat_id_..msg.sender_user_id_,1)
+if tonumber(database:get(bot_id..'SADD:NUM'..msg.chat_id_..msg.sender_user_id_)) >= 3 then
+database:del(bot_id..'SADD:NUM'..msg.chat_id_..msg.sender_user_id_)
+database:del(bot_id.."GAME:TKMEN" .. msg.chat_id_ .. "" .. msg.sender_user_id_)   
+send(msg.chat_id_, msg.id_,'📮| اوبس لقد خسرت في اللعبه \n??| حظآ اوفر في المره القادمه \n🔰| كان الرقم الذي تم تخمينه { '..GETNUM..' }')
+else
+send(msg.chat_id_, msg.id_,'⚠️| اوبس تخمينك غلط \n📌| ارسل رقم تخمنه مره اخرى ')
+end
+end
+end
+end
+if text == 'خمن' or text == 'تخمين' then   
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+Num = math.random(1,20)
+database:set(bot_id.."GAMES:NUM"..msg.chat_id_,Num) 
+send(msg.chat_id_, msg.id_,'\n⚠️| اهلا بك عزيزي في لعبة التخمين :\nٴ━━━━━━━━━━\n'..'⚠¦ ملاحظه لديك { 3 } محاولات فقط فكر قبل ارسال تخمينك \n\n'..'🔖| سيتم تخمين عدد ما بين ال {1 و 20} اذا تعتقد انك تستطيع الفوز جرب واللعب الان ؟ ')
+database:setex(bot_id.."GAME:TKMEN" .. msg.chat_id_ .. "" .. msg.sender_user_id_, 100, true)  
+return false  
+end
+end
+
+if database:get(bot_id.."SET:GAME" .. msg.chat_id_ .. "" .. msg.sender_user_id_) then  
+if text and text:match("^(%d+)$") then
+local NUM = text:match("^(%d+)$")
+if tonumber(NUM) > 6 then
+send(msg.chat_id_, msg.id_,"🎗️| عذرا لا يوجد سواء { 6 } اختيارات فقط ارسل اختيارك مره اخرى\n")
+return false  end 
+local GETNUM = database:get(bot_id.."Games:Bat"..msg.chat_id_)
+if tonumber(NUM) == tonumber(GETNUM) then
+database:del(bot_id.."SET:GAME" .. msg.chat_id_ .. "" .. msg.sender_user_id_)   
+send(msg.chat_id_, msg.id_,'📮| مبروك فزت وطلعت المحيبس بل ايد رقم { '..NUM..' }\n✨|  لقد حصلت على { 3 }من نقاط يمكنك استبدالهن برسائل ')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_,3)  
+elseif tonumber(NUM) ~= tonumber(GETNUM) then
+database:del(bot_id.."SET:GAME" .. msg.chat_id_ .. "" .. msg.sender_user_id_)   
+send(msg.chat_id_, msg.id_,'💠| للاسف لقد خسرت \n🎗️| المحيبس بل ايد رقم { '..GETNUM..' }\n💥| حاول مره اخرى للعثور على المحيبس')
+end
+end
+end
+
+if text == 'محيبس' or text == 'بات' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then   
+Num = math.random(1,6)
+database:set(bot_id.."Games:Bat"..msg.chat_id_,Num) 
+TEST = [[
+*➀       ➁     ➂      ➃      ➄     ➅
+↓      ↓     ↓      ↓     ↓     ↓   
+👊 ‹•› 👊 ‹•› 👊 ‹•› 👊 ‹•› 👊 ‹•› 👊
+🔘| اختر لأستخراج المحيبس الايد التي تحمل المحيبس 
+🎉| الفائز يحصل على { 3 } من النقاط *
+]]
+send(msg.chat_id_, msg.id_,TEST)
+database:setex(bot_id.."SET:GAME" .. msg.chat_id_ .. "" .. msg.sender_user_id_, 100, true)  
+return false  
+end
+end
+
+------------------------------------------------------------------------
+
+if text == 'رياضيات' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔅¦عذراً عليك الاشتراك في القناة\n📌¦اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+Hussein = {'9','2','60','9','5','4','25','10','17','15','39','5','16',};
+name = Hussein[math.random(#Hussein)]
+database:del(bot_id..'Set:Ryadeat:Bot'..msg.chat_id_)
+database:set(bot_id..':Set:Ryadeat'..msg.chat_id_,name)
+name = string.gsub(name,'9','2+7=')
+name = string.gsub(name,'2','5-3=')
+name = string.gsub(name,'60','(30)² =')
+name = string.gsub(name,'9','2+2+5=')
+name = string.gsub(name,'5','8-3=?')
+name = string.gsub(name,'4','40÷10=')
+name = string.gsub(name,'25','30-5=')
+name = string.gsub(name,'10','100÷10=')
+name = string.gsub(name,'17','10+5+2=')
+name = string.gsub(name,'15','25-10=')
+name = string.gsub(name,'39','44-5=')
+name = string.gsub(name,'5','12+1-8=')
+name = string.gsub(name,'16','16+16-16=')
+send(msg.chat_id_, msg.id_,'اجب عن التالي ~ {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..':Set:Ryadeat'..msg.chat_id_) or '')..'' then 
+if not database:get(bot_id..'Set:Ryadeat:Bot'..msg.chat_id_) then 
+database:del(bot_id..':Set:Ryadeat'..msg.chat_id_)
+send(msg.chat_id_, msg.id_,'🎁¦ الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ رياضيات }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Ryadeat:Bot'..msg.chat_id_,true)
+end
+------------------------------------------------------------------------
+
+if text == 'انكليزي' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔅┇عذراً عليك الاشتراك في القناة\n📌┇اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+Hussein = {'معلومات','قنوات','مجموعات','كتاب','تفاحه','مختلف','سدني','نقود','اعلم','ذئب','تمساح','ذكي',};
+name = Hussein[math.random(#Hussein)]
+database:del(bot_id..'Set:English:Bot'..msg.chat_id_)
+database:set(bot_id..':Set:English'..msg.chat_id_,name)
+name = string.gsub(name,'ذئب','Wolf')
+name = string.gsub(name,'معلومات','Information')
+name = string.gsub(name,'قنوات','Channels')
+name = string.gsub(name,'مجموعات','Groups')
+name = string.gsub(name,'كتاب','Book')
+name = string.gsub(name,'تفاحه','Apple')
+name = string.gsub(name,'سدني','Sydney')
+name = string.gsub(name,'نقود','money')
+name = string.gsub(name,'اعلم','I know')
+name = string.gsub(name,'تمساح','crocodile')
+name = string.gsub(name,'مختلف','Different')
+name = string.gsub(name,'ذكي','Intelligent')
+send(msg.chat_id_, msg.id_,'اجب عن التالي ~ { '..name..' }')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..':Set:English'..msg.chat_id_) or '')..'' then 
+if not database:get(bot_id..'Set:English:Bot'..msg.chat_id_) then 
+database:del(bot_id..':Set:English'..msg.chat_id_)
+send(msg.chat_id_, msg.id_,'🎁┇ الف مبروك لقد فزت \n♻┇ للعب مره اخره ارسل »{ انكليزي }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:English:Bot'..msg.chat_id_,true)
+end
+
+------------------------------------------------------------------------
+
+if text == 'المختلف' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+mktlf = {'😸','☠','🐼','🐇','??','🌚','⭐️','✨','⛈','🌥','⛄️','👨‍🔬','👨‍💻','👨‍🔧','👩‍🍳','🧚‍♀','??‍♂','??‍♂','🙍‍♂','🧖‍♂','👬','👨‍👨‍👧','🕒','🕤','⌛️','📅',};
+name = mktlf[math.random(#mktlf)]
+database:del(bot_id..'Set:Moktlf:Bot'..msg.chat_id_)
+database:set(bot_id..':Set:Moktlf'..msg.chat_id_,name)
+name = string.gsub(name,'😸','😹😹😹😹😹😹😹😹😸😹😹😹😹')
+name = string.gsub(name,'☠','💀💀💀💀💀💀💀☠💀💀💀💀💀')
+name = string.gsub(name,'🐼','👻👻👻🐼👻👻👻👻👻👻👻')
+name = string.gsub(name,'🐇','🕊🕊🕊🕊🕊🐇🕊🕊🕊🕊')
+name = string.gsub(name,'🌑','🌚🌚🌚🌚🌚🌑🌚🌚🌚')
+name = string.gsub(name,'🌚','🌑🌑🌑🌑🌑🌚🌑🌑🌑')
+name = string.gsub(name,'⭐️','🌟🌟🌟🌟🌟🌟🌟🌟⭐️🌟🌟🌟')
+name = string.gsub(name,'✨','💫💫💫💫💫✨💫💫💫💫')
+name = string.gsub(name,'⛈','🌨🌨🌨🌨🌨⛈🌨🌨🌨🌨')
+name = string.gsub(name,'🌥','⛅️⛅️⛅️⛅️⛅️⛅️🌥⛅️⛅️⛅️⛅️')
+name = string.gsub(name,'⛄️','☃☃☃☃☃☃⛄️☃☃☃☃')
+name = string.gsub(name,'👨‍🔬','👩‍🔬👩‍🔬👩‍🔬👩‍🔬👩‍🔬👩‍🔬👩‍🔬👩‍🔬👨‍🔬👩‍🔬👩‍🔬👩‍🔬')
+name = string.gsub(name,'👨‍💻','👩‍💻👩‍💻👩‍‍💻👩‍‍💻👩‍💻👨‍💻👩‍💻👩‍💻👩‍💻')
+name = string.gsub(name,'👨‍🔧','👩‍🔧👩‍🔧👩‍🔧👩‍🔧👩‍🔧👩‍🔧👨‍🔧👩‍🔧')
+name = string.gsub(name,'👩‍🍳','👨‍🍳👨‍🍳👨‍🍳👨‍🍳👨‍🍳👩‍🍳👨‍🍳👨‍🍳👨‍🍳')
+name = string.gsub(name,'🧚‍♀','🧚‍♂🧚‍♂🧚‍♂🧚‍♂🧚‍♀🧚‍♂🧚‍♂')
+name = string.gsub(name,'🧜‍♂','🧜‍♀🧜‍♀🧜‍♀🧜‍♀🧜‍♀🧚‍♂🧜‍♀🧜‍♀🧜‍♀')
+name = string.gsub(name,'🧝‍♂','🧝‍♀🧝‍♀🧝‍♀🧝‍♀🧝‍♀🧝‍♂🧝‍♀🧝‍♀🧝‍♀')
+name = string.gsub(name,'🙍‍♂️','🙎‍♂️🙎‍♂️🙎‍♂️🙎‍♂️🙎‍♂️🙍‍♂️🙎‍♂️🙎‍♂️🙎‍♂️')
+name = string.gsub(name,'🧖‍♂️','🧖‍♀️🧖‍♀️🧖‍♀️🧖‍♀️🧖‍♀️🧖‍♂️🧖‍♀️🧖‍♀️🧖‍♀️🧖‍♀️')
+name = string.gsub(name,'👬','👭👭👭👭👭👬👭👭👭')
+name = string.gsub(name,'👨‍👨‍👧','👨‍👨‍👦👨‍👨‍👦👨‍👨‍👦👨‍👨‍👦👨‍👨‍👧👨‍👨‍👦👨‍👨‍👦')
+name = string.gsub(name,'🕒','🕒🕒🕒🕒🕒🕒🕓🕒🕒🕒')
+name = string.gsub(name,'🕤','🕥🕥🕥🕥🕥🕤🕥🕥🕥')
+name = string.gsub(name,'⌛️','⏳⏳⏳⏳⏳⏳⌛️⏳⏳')
+name = string.gsub(name,'📅','📆📆📆📆📆📆📅📆📆')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يدز الاختلاف » {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..':Set:Moktlf'..msg.chat_id_) or '')..'' then 
+if not database:get(bot_id..'Set:Moktlf:Bot'..msg.chat_id_) then 
+database:del(bot_id..':Set:Moktlf'..msg.chat_id_)
+send(msg.chat_id_, msg.id_,'✨|  الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ المختلف }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Moktlf:Bot'..msg.chat_id_,true)
+end
+------------------------------------------------------------------------
+if text == 'امثله' then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+if database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+mthal = {'جوز','ضراطه','الحبل','الحافي','شقره','بيدك','سلايه','النخله','الخيل','حداد','المبلل','يركص','قرد','العنب','العمه','الخبز','بالحصاد','شهر','شكه','يكحله',};
+name = mthal[math.random(#mthal)]
+database:set(bot_id..'Set:Amth'..msg.chat_id_,name)
+database:del(bot_id..'Set:Amth:Bot'..msg.chat_id_)
+name = string.gsub(name,'جوز','ينطي____للماعده سنون')
+name = string.gsub(name,'ضراطه','الي يسوق المطي يتحمل___')
+name = string.gsub(name,'بيدك','اكل___محد يفيدك')
+name = string.gsub(name,'الحافي','تجدي من___نعال')
+name = string.gsub(name,'شقره','مع الخيل يا___')
+name = string.gsub(name,'النخله','الطول طول___والعقل عقل الصخلة')
+name = string.gsub(name,'سلايه','بالوجه امراية وبالظهر___')
+name = string.gsub(name,'الخيل','من قلة___شدو على الچلاب سروج')
+name = string.gsub(name,'حداد','موكل من صخم وجهه كال آني___')
+name = string.gsub(name,'المبلل','___ما يخاف من المطر')
+name = string.gsub(name,'الحبل','اللي تلدغة الحية يخاف من جرة___')
+name = string.gsub(name,'يركص','المايعرف___يكول الكاع عوجه')
+name = string.gsub(name,'العنب','المايلوح___يكول حامض')
+name = string.gsub(name,'العمه','___إذا حبت الچنة ابليس يدخل الجنة')
+name = string.gsub(name,'الخبز','انطي___للخباز حتى لو ياكل نصه')
+name = string.gsub(name,'باحصاد','اسمة___ومنجله مكسور')
+name = string.gsub(name,'شهر','امشي__ولا تعبر نهر')
+name = string.gsub(name,'شكه','يامن تعب يامن__يا من على الحاضر لكة')
+name = string.gsub(name,'القرد','__بعين امه غزال')
+name = string.gsub(name,'يكحله','اجه___عماها')
+send(msg.chat_id_, msg.id_,'🎗️| اسرع واحد يكمل المثل » {'..name..'}')
+return false
+end
+end
+------------------------------------------------------------------------
+if text == ''..(database:get(bot_id..'Set:Amth'..msg.chat_id_) or '')..'' then 
+if not database:get(bot_id..'Set:Amth:Bot'..msg.chat_id_) then 
+database:del(bot_id..'Set:Amth'..msg.chat_id_)
+send(msg.chat_id_, msg.id_,'✨|  الف مبروك لقد فزت \n♻¦ للعب مره اخره ارسل »{ امثله }')
+database:incrby(bot_id..'NUM:GAMES'..msg.chat_id_..msg.sender_user_id_, 1)  
+end
+database:set(bot_id..'Set:Amth:Bot'..msg.chat_id_,true)
+end
+if text == 'تعطيل الالعاب' and Manager(msg) then   
+if database:get(bot_id..'Lock:Games'..msg.chat_id_)  then
+database:del(bot_id..'Lock:Games'..msg.chat_id_) 
+Text = '\n🎗️| تم تعطيل الالعاب' 
+else
+Text = '\n⚠️| بالتاكيد تم تعطيل الالعاب'
+end
+send(msg.chat_id_, msg.id_,Text) 
+end
+if text == 'تفعيل الالعاب' and Manager(msg) then  
+if not database:get(bot_id..'Lock:Games'..msg.chat_id_)  then
+database:set(bot_id..'Lock:Games'..msg.chat_id_,true) 
+Text = '\n🎗️| تم تفعيل الالعاب' 
+else
+Text = '\n💠| بالتاكيد تم تفعيل الالعاب'
+end
+send(msg.chat_id_, msg.id_,Text) 
+end
 if text ==("مسح") and Mod(msg) and tonumber(msg.reply_to_message_id_) > 0 then
 DeleteMessage(msg.chat_id_,{[0] = tonumber(msg.reply_to_message_id_),msg.id_})   
 end   
@@ -8630,6 +9105,43 @@ promote = 'ꪜ' else promote = '✘' end
 send(msg.chat_id_,msg.id_,'\n📌| اهلا عزيزي البوت هنا ادمن'..'\n🎗️|  وصلاحياته هي ↓ \nٴ━━━━━━━━━━'..'\n📝|  تغير معلومات المجموعه ↞ ❴ '..info..' ❵'..'\n💌|  حذف الرسائل ↞ ❴ '..delete..' ❵'..'\n💠|  حظر المستخدمين ↞ ❴ '..restrict..' ❵'..'\n♻|  دعوة مستخدمين ↞ ❴ '..invite..' ❵'..'\n🔘|  تثبيت الرسائل ↞ ❴ '..pin..' ❵'..'\n🔰|  اضافة مشرفين جدد ↞ ❴ '..promote..' ❵')   
 end
 end
+end
+if text == 'الالعاب' and database:get(bot_id..'Lock:Games'..msg.chat_id_) then
+if AddChannel(msg.sender_user_id_) == false then
+local textchuser = database:get(bot_id..'text:ch:user')
+if textchuser then
+send(msg.chat_id_, msg.id_,'['..textchuser..']')
+else
+send(msg.chat_id_, msg.id_,'🔖| لا تستطيع استخدام البوت يرجى الاشتراك في القناة حتى تتمكن من استخدام الاوامر \n 📌| اشترك هنا ['..database:get(bot_id..'add:ch:username')..']')
+end
+return false
+end
+Text_Games = [[
+✏️⸽ اوامر الالعاب كتالي √
+؛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛
+🔘⸽ تفعيل الالعاب • لتفعيل العبه ° 
+🔘⸽ تعطيل الالعاب • لتعطيل العبه °
+؛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛
+📮⸽ الالعاب الخاصه بسورس ساكورا √
+؛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛
+👊⸽  لعبه البات ← لعبة المحيبس 
+🔬⸽ لعبه التخمين ← لعبة البحث
+🔍⸽ لعبه الاسرع ← لعبة اسرع شخص
+🗳️⸽ لعبه السمايلات ← لعبة المطابقه 
+🎭⸽ لعبه المختلف ← لعبة الذكاء
+📎⸽ لعبه الامثله ← لعبة تصحيح 
+📚⸽لعبه العكس ← لعبة عكس الكلمات
+📝⸽ لعبه الحزوره ←لعبة لعبة التفكير 
+🔖⸽ لعبه المعاني ← العبه الشهيره 
+🧠⸽ لعبه الانكليزي ← لتقويه لغتك
+👨‍🏫⸽ لعبه الرياضيات ← لاختبار قدراتك
+؛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛≛
+الميزيد م̷ـــِْن المعلومات √
+راسل المطور البوت °
+؛🧸⸽ CH » @SAKURAV15
+
+]]
+send(msg.chat_id_, msg.id_,Text_Games) 
 end
 if text:match("^كول (.*)$") then
 local txt = {string.match(text, "^(كول) (.*)$")}
@@ -9333,15 +9845,299 @@ local texting = {"مووووووووواححح💋😘","مابوس ولي😌�
 send(msg.chat_id_, msg.id_, ''..texting[math.random(#texting)]..'')
 end
 end
-if text == 'تفعيل الردود' and Manager(msg) then   
-database:del(bot_id..'lock:reply'..msg.chat_id_)  
-Text = '🔰| تم تفعيل الردود'
-send(msg.chat_id_, msg.id_,Text) 
+if text == 'تفعيل الردود' and Manager(msg) then  
+send(msg.chat_id_, msg.id_, '🗳¦ تم تفعيل الردود')
+database:del(bot_id..'lock:add'..msg.chat_id_)
 end
 if text == 'تعطيل الردود' and Manager(msg) then  
-database:set(bot_id..'lock:reply'..msg.chat_id_,true)  
-Text = '\n🔘| تم تعطيل الردود'
-send(msg.chat_id_, msg.id_,Text) 
+send(msg.chat_id_, msg.id_, '❏︙ تم تعطيل الردود')
+database:set(bot_id..'lock:add'..msg.chat_id_, true)
+end
+
+if text == 'هلو باي' then
+TextReply = 'شحسيت من هيج كتبت😹'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'هلو' then
+TextReply = '• هَٰہۧـﮧﮧلْٰاَٰوٍّ໑اَٰتّٰ 🌝☄ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شلونكم' then
+TextReply = '• تّٰمٍٰـﮧاَٰمٍٰ وٍّاَٰنٍٰتّٰـہهَٰہۧ 😽⚡️ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شلونك' then
+TextReply = '• اَٰلْٰـحٌٰمٍٰـﮧﮧدِٰاَٰلْٰلْٰهَٰہۧ وٍّ୭اَٰنٍٰتّٰـهَٰہۧ 😼💛ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'تمام' then
+TextReply = '• دِٰوٍّ൭مٍٰ يَٰـﮧﮧاَٰرِٰبٌِٰ 😻🌪ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'هلاو' then
+TextReply = '• هَٰہۧـہ୪وٍّ୭اَٰتّٰ حٌٰبٌِٰـﮧيَٰ 🤗🌟ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '😐' then
+TextReply = '• شَُـبٌِٰيَٰـكٍٰ صُِـﮧﮧاَٰفِٰنٍٰ عٍِّ خّٰاَٰلْٰتّٰـہكٍٰ😹🖤ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'هاي' then
+TextReply = '• هَٰہۧـاَٰيَٰـﮧﮧاَٰتّٰ يَٰـرِٰوٍّحٌٰـہيَٰ 🙋🏼‍♂💙ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'بوت' then
+TextReply = '• تّٰفِٰـضـﮧلْٰ حٌٰبٌِٰـہيَٰ 🌚💫ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'اريد اكبل' then
+TextReply = '• شَُـوٍّ໑فِٰلْٰيَٰ وٍّيَٰـاَٰكٍٰ حٌٰدِٰيَٰـہقٍٰهَٰہۧ وٍّدِٰاَٰيَٰـﮧحٌٰ رِٰسٌٍمٍٰـہيَٰ😾😹💜ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'لتزحف' then
+TextReply = '• دِٰعٍِّـوٍّ໑فِٰهَٰہۧ زًَاَٰحٌٰـﮧفِٰ عٍِّ خّٰاَٰلْٰـتّٰكٍٰ خّٰـلْٰيَٰ يَٰسٌٍـہتّٰفِٰاَٰدِٰ😾🌈ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'كلخرا' then
+TextReply = '• خّٰـﮧرِٰاَٰ يَٰتّٰـہرِٰسٌٍ حٌٰلْٰكٍٰـﮧكٍٰ يَٰاَٰخّٰـﮧرِٰاَٰاَٰ💩ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'زاحف' then
+TextReply = '• زًَاَٰحٌٰـﮧفِٰ عٍِّ اَٰخّٰتّٰـﮧكٍٰ؟ كٍٰضيَٰـﮧتّٰ عٍِّمٍٰرِٰكٍٰ جًِّرِٰجًِّـﮧفِٰ😾😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'دي' then
+TextReply = '• خّٰلْٰيَٰنٍٰـﮧيَٰ اَٰحٌٰبٌِٰـﮧكٍٰ 😾ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'فرخ' then
+TextReply = '• وٍّيَٰنٍٰـﮧهَٰہۧ؟ خّٰ اَٰحٌٰضـﮧرِٰهَٰہۧ 😾😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'تعالي خاص' then
+TextReply = '• اَٰهَٰہۧـﮧوٍّ໑ ضـﮧلْٰ ضـﮧلْٰ سٌٍـﮧاَٰحٌٰفِٰ كٍٰبٌِٰـﮧرِٰ طَُِمٍٰـہكٍٰ😗😂💚ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'اكرهك' then
+TextReply = '•دِٰيَٰلْٰـﮧهَٰہۧ شَُـﮧوٍّ୭نٍٰ اَٰطَُِيَٰـقٍٰكٍٰ نٍٰـيَٰ 🙎🏼‍♂🖤ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'احبك' then
+TextReply = '•حٌٰبٌِٰيَٰبٌِٰـﮧيَٰ وٍّنٍٰـﮧيَٰ هَٰہۧــمٍٰ😻👅ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'باي' then
+TextReply = '• وٍّيَٰـﮧنٍٰ رِٰاَٰيَٰـہحٌٰ خّٰلْٰيَٰنٍٰـﮧهَٰہۧ مٍٰتّٰوٍّنٍٰسٌٍيَٰـﮧنٍٰ🙁💔ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'واكف' then
+TextReply = '• بٌِٰنٍٰلْٰخّٰـﮧرِٰاَٰ وٍّيَٰـﮧنٍٰ وٍّاَٰكٍٰـﮧفِٰ😐😒ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'وين المدير' then
+TextReply = '• لْٰيَٰـﮧشَُ شَُتّٰـﮧرِٰيَٰدِٰ🤔ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'انجب' then
+TextReply = '• صُِـﮧاَٰرِٰ سٌٍتّٰـﮧاَٰدِٰيَٰ🐸❤️ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'تحبني' then
+TextReply = '• مٍٰـﮧاَٰدِٰرِٰيَٰ اَٰفِٰكٍٰـﮧرِٰ🙁😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🌚' then
+TextReply = '• فِٰـﮧدِٰيَٰتّٰ صُِخّٰـﮧاَٰمٍٰكٍٰ🙊👄ֆ '
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🙄' then
+TextReply = '• نٍٰـہزًَلْٰ عٍِّيَٰـنٍٰكٍٰ عٍِّيَٰـﮧبٌِٰ🌚😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '😒' then
+TextReply = '• شَُبٌِٰيَٰـﮧكٍٰ كٍٰاَٰلْٰـﮧبٌِٰ خّٰلْٰقٍٰتّٰـﮧكٍٰ😟🐈ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '😳' then
+TextReply = '• هَٰہۧـاَٰ بٌِٰسٌٍ لْٰاَٰ شَُفِٰـﮧتّٰ عٍِّمٍٰتّٰـﮧكٍٰ اَٰلْٰعٍِّـﮧوٍّ໑بٌِٰهَٰہۧ😐😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🙁' then
+TextReply = '• تّٰعٍِّـﮧاَٰلْٰ اَٰشَُكٍٰيَٰلْٰـﮧيَٰ هَٰہۧمٍٰوٍّمٍٰـﮧكٍٰ لْٰيَٰـشَُ • ضاَٰيَٰـﮧجًِّ🙁💔ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🚶💔' then
+TextReply = '• تّٰعٍِّـﮧاَٰلْٰ اَٰشَُكٍٰيَٰلْٰـﮧيَٰ هَٰہۧمٍٰوٍّمٍٰـﮧكٍٰ لْٰيَٰـشَُ • ضاَٰيَٰـﮧجًِّ🙁💔ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🙂' then
+TextReply = '• ثِْْكٍٰيَٰـﮧلْٰ نٍٰهَٰہۧنٍٰهَٰہۧنٍٰهَٰہۧنٍٰهَٰہۧ🐛ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '🌝' then
+TextReply = '• مٍٰنٍٰـﮧوٍّ໑رِٰ حٌٰبٌِٰـعٍِّمٍٰـہرِٰيَٰ😽💚ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'صباحو' then
+TextReply = '• صُِبٌِٰاَٰحٌٰـہكٍٰ عٍِّسٌٍـہلْٰ يَٰعٍِّسٌٍـﮧلْٰ😼🤞ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'صباح الخير' then
+TextReply = '• صُِبٌِٰاَٰحٌٰـہكٍٰ عٍِّسٌٍـہلْٰ يَٰعٍِّسٌٍـﮧلْٰ😼🤞ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'كفو' then
+TextReply = '• اَٰهَٰہۧ كٍٰفِٰـﮧوٍّ໑ يَٰبٌِٰہوٍّ୭ اَٰلْٰضـلْٰہوٍّ୭عٍِّ😹ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '😌' then
+TextReply = '• اَٰلْٰمٍٰطَُِلْٰـﮧوٍّ໑بٌِٰ !😕💞ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'اها' then
+TextReply = '• يَٰبٌِٰ قٍٰاَٰبٌِٰـﮧلْٰ اَٰغِِٰشَُـﮧكٍٰ شَُسٌٍاَٰلْٰفِٰـﮧهَٰہۧ حٌٰبٌِٰ😐🌝ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شسمج' then
+TextReply = '• اَٰسٌٍـمٍٰهَٰہۧـﮧاَٰ جًِّعٍِّجًِّـﮧوٍّ໑عٍِّهَٰہۧ😹👊ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شسمك' then
+TextReply = '• اَٰسٌٍمٍٰـﮧهَٰہۧ عٍِّبٌِٰـﮧوٍّ໑سٌٍيَٰ لْٰـوٍّ૭سٌٍہيَٰ😾😹💛ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شوف' then
+TextReply = '• شَُشَُـﮧﮧوٍّ໑فِٰ 🌝🌝ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'مساء الخير' then
+TextReply = '• مٍٰسٌٍـﮧاَٰء اَٰلْٰحٌٰـﮧبٌِٰ يَٰحٌٰہبٌِٰحٌٰہبٌِٰ🌛🔥ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'المدرسه' then
+TextReply = '• لْٰتّٰجًِّيَٰـﮧبٌِٰ اَٰسٌٍمٍٰـﮧهَٰہۧ لْٰاَٰ اَٰطَُِـﮧرِٰدِٰكٍٰ🌞✨ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'منو ديحذف رسائلي' then
+TextReply = '• خّٰـﮧاَٰلْٰتّٰـہكٍٰ 🌚ֆ🌝'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'البوت واكف' then
+TextReply = '• لْٰجًِّـﮧذَْبٌِٰ حٌٰبٌِٰـہيَٰ 🌞⚡️ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'غلس' then
+TextReply = '• وٍّ໑كٍٰ بٌِٰـﮧسٌٍ سٌٍـﮧوٍّ୭لْٰفِٰلْٰيَٰ اَٰلْٰسٌٍـﮧاَٰلْٰفِٰهَٰہۧ بٌِٰعٍِّـﮧدِٰيَٰنٍٰ🌝🦅ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'حارة' then
+TextReply = '• تّٰسٌٍـہمٍٰطَُِ سٌٍمٍٰـﮧطَُِ غِِٰيَٰـﮧرِٰ يَٰرِٰحٌٰمٍٰنٍٰـﮧهَٰہۧ اَٰلْٰاَٰعٍِّبٌِٰـاَٰدِٰيَٰ وٍّيَٰنٍٰـہطَُِيَٰ عٍِّطَُِلْٰـﮧهَٰہۧ 😾💔ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'هههه' then
+TextReply = '• نٍٰشَُـﮧاَٰلْٰلْٰهَٰہۧ دِٰاَٰيَٰمٍٰـﮧهَٰہۧ💆🏻‍♂💘ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'ههههه' then
+TextReply = '• نٍٰشَُـﮧاَٰلْٰلْٰهَٰہۧ دِٰاَٰيَٰمٍٰـﮧهَٰہۧ💆🏻‍♂💘ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == '😹' then
+TextReply = '• نٍٰشَُـﮧاَٰلْٰلْٰهَٰہۧ دِٰاَٰيَٰمٍٰـﮧهَٰہۧ💆🏻‍♂💘ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'وين' then
+TextReply = '• بٌِٰـﮧﮧأرِٰض اَٰلْٰلْٰهَٰہۧ اَٰلْٰـہوٍّاَٰسٌٍعٍِّـﮧهَٰہۧ😽💜ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'كافي لغوة' then
+TextReply = '• كٍٰـيَٰفِٰنٍٰـﮧهَٰہۧ نٍٰتّٰـﮧهَٰہۧ شَُعٍِّـہلْٰيَٰكٍٰ😼👊ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'نايمين' then
+TextReply = '• اَٰنٍٰـﮧيَٰ سٌٍهَٰہۧـہرِٰاَٰنٍٰ اَٰحٌٰرِٰسٌٍـﮧكٍٰمٍٰ مٍٰـﮧטּ تّٰـرِٰاَٰمٍٰـﮧبٌِٰ😿😹🙌ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'اكو احد' then
+TextReply = '• يَٰ عٍِّيَٰـنٍٰـﮧيَٰ اَٰنٍٰـہيَٰ مٍٰـوٍّ૭جًِّـﮧوٍّدِٰ🌝✨ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'فديت' then
+TextReply = '•فِٰـﮧﮧدِٰاَٰكٍٰ/جًِّ ثِْْـﮧوٍّ୪لْٰاَٰنٍٰ اَٰلْٰكٍٰـرِٰوٍّ୭بٌِٰ😟😂💚ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'شكو' then
+TextReply = '• كٍٰلْٰـشَُـﮧﮧيَٰ مٍٰـہاَٰكٍٰـﮧوٍّ اَٰرِٰجًِّـعٍِّ نٍٰـاَٰمٍٰ🐼🌩ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'اوف' then
+TextReply = '• هَٰہۧـﮧﮧاَٰيَٰ اَٰوٍّفِٰ مٍٰنٍٰ يَٰـاَٰ نٍٰـوٍّ୭عٍِّ صُِـاَٰرِٰتّٰ اَٰلْٰـسٌٍاَٰلْٰفِٰهَٰہۧ مٍٰتّٰـنٍٰعٍِّرِٰفِٰ🌚🌙ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'احبج' then
+TextReply = '•جًِّـﮧذَْاَٰبٌِٰ يَٰـرِٰيَٰدِٰ يَٰطَُِـہكٍٰجًِّ😹🌞⚡️ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
+end
+if text == 'انتة منو' then
+TextReply = '• اَٰنٍٰـﮧﮧيَٰ بٌِٰـوٍّ໑تّٰ💨🌝ֆ'
+send(msg.chat_id_, msg.id_,'['..TextReply..']')
+return false
 end
 --------------------------------------------------------------------------------------------------------------
 if text:match('^الحساب (%d+)$') then
